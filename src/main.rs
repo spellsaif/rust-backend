@@ -1,4 +1,4 @@
-use axum::{extract::Path, routing::{get, post}, Json, Router};
+use axum::{extract::Path, response::IntoResponse, routing::{get, post}, Json, Router};
 
 #[derive(Debug, serde::Deserialize, serde::Serialize)]
 pub struct User {
@@ -22,16 +22,16 @@ async fn main() {
 }
 
 
-async fn health_handler() -> &'static str {
-    "Server is running"
+async fn health_handler() -> impl IntoResponse {
+    "Server is running".into_response()
 } 
 
-async fn create_user_handler(Json(payload): Json<User>) -> Json<User> {
+async fn create_user_handler(Json(payload): Json<User>) -> impl IntoResponse {
     let user = User {name: payload.name, email: payload.email};
 
-    Json(user)
+    Json(user).into_response()
 }
 
-async fn get_user_handler(Path(id): Path<String>) -> String {
-    format!("User id: {}", id)
+async fn get_user_handler(Path(id): Path<String>) -> impl IntoResponse {
+    format!("User id: {}", id).into_response()
 }
