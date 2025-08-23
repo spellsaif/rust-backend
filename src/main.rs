@@ -1,4 +1,4 @@
-use axum::{routing::{get, post}, Json, Router};
+use axum::{extract::Path, routing::{get, post}, Json, Router};
 
 #[derive(Debug, serde::Deserialize, serde::Serialize)]
 pub struct User {
@@ -13,7 +13,8 @@ async fn main() {
 
    let router = Router::new()
                             .route("/health", get(health_handler))
-                            .route("/users", post(create_user_handler));
+                            .route("/users", post(create_user_handler))
+                            .route("/users/{id}", get(get_user_handler));
 
    let listener = tokio::net::TcpListener::bind("0.0.0.0:3001").await.unwrap();
 
@@ -29,4 +30,8 @@ async fn create_user_handler(Json(payload): Json<User>) -> Json<User> {
     let user = User {name: payload.name, email: payload.email};
 
     Json(user)
+}
+
+async fn get_user_handler(Path(id): Path<String>) -> String {
+    format!("User id: {}", id)
 }
