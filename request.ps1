@@ -1,5 +1,5 @@
 Invoke-WebRequest `
-    -Uri "http://localhost:3001/user" `
+    -Uri "http://localhost:3001/users" `
     -Method POST `
-    -Body '{"name": "saif", "email": "saif@saif.com"}' `
+    -Body '{"name": "nanasi", "email": "nanasi@isekai.com"}' `
     -ContentType "application/json"
