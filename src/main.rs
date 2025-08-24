@@ -1,13 +1,16 @@
 use std::env;
 
-use axum::{extract::{Path, State}, response::IntoResponse, routing::{get, post}, Json, Router};
-use sqlx::{postgres::PgPoolOptions, PgPool};
+use axum::{ response::IntoResponse, routing::{get}, Router};
+use sqlx::{postgres::PgPoolOptions};
 use dotenvy::dotenv;
-#[derive(Debug, serde::Deserialize, serde::Serialize)]
-pub struct User {
-    name: String,
-    email: String,
-}
+
+use crate::routes::api_routes;
+
+mod routes;
+mod handlers;
+mod models;
+
+
 
 
 
@@ -28,8 +31,7 @@ async fn main() -> anyhow::Result<()> {
 
    let router = Router::new()
                             .route("/health", get(health_handler))
-                            .route("/users", post(create_user_handler))
-                            .route("/users/{id}", get(get_user_handler))
+                            .merge(api_routes())                           
                             .with_state(pool);
 
    let listener = tokio::net::TcpListener::bind("0.0.0.0:3001").await.unwrap();
@@ -43,18 +45,3 @@ async fn main() -> anyhow::Result<()> {
 async fn health_handler() -> impl IntoResponse {
     "Server is running".into_response()
 } 
-
-async fn create_user_handler(State(pool): State<PgPool> ,Json(payload): Json<User>) -> impl IntoResponse {
-
-    sqlx::query("INSERT INTO users (name, email) VALUES ($1, $2)")
-        .bind(&payload.name)
-        .bind(&payload.email)
-        .execute(&pool)
-        .await
-        .unwrap();
-    Json(payload).into_response()
-}
-
-async fn get_user_handler(Path(id): Path<String>) -> impl IntoResponse {
-    format!("User id: {}", id).into_response()
-}
