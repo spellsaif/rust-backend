@@ -1,7 +1,7 @@
 use std::env;
 
 use axum::{ response::IntoResponse, routing::{get}, Router};
-use sqlx::{postgres::PgPoolOptions};
+use sqlx::{postgres::PgPoolOptions, PgPool};
 use dotenvy::dotenv;
 
 use crate::routes::api_routes;
@@ -9,8 +9,6 @@ use crate::routes::api_routes;
 mod routes;
 mod handlers;
 mod models;
-
-
 
 
 
@@ -25,6 +23,7 @@ async fn main() -> anyhow::Result<()> {
             .max_connections(5)
             .connect(&database_url)
             .await?;
+
 
     sqlx::migrate!().run(&pool).await?;
 
