@@ -10,6 +10,10 @@ mod routes;
 mod handlers;
 mod models;
 
+#[derive(Debug, Clone)]
+pub struct AppState {
+    db: PgPool
+}
 
 
 #[tokio::main]
@@ -27,11 +31,15 @@ async fn main() -> anyhow::Result<()> {
 
     sqlx::migrate!().run(&pool).await?;
 
+    //Create AppState
+    let state = AppState {
+        db: pool
+    };
 
    let router = Router::new()
                             .route("/health", get(health_handler))
                             .merge(api_routes())                           
-                            .with_state(pool);
+                            .with_state(state);
 
    let listener = tokio::net::TcpListener::bind("0.0.0.0:3001").await.unwrap();
 
